@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import ReactMarkdown from 'react-markdown';
 import {
   Card,
   CardContent,
@@ -15,33 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Brain, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
-
-// Mock API call
-const fetchQuestion = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: 1,
-        question:
-          "What is the difference between 'let' and 'const' in JavaScript?",
-        difficulty: 'Medium',
-      });
-    }, 1500);
-  });
-};
-
-// Mock API call for submitting answer
-const submitAnswer = (answer: string) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        correct: Math.random() > 0.5, // Randomly determine if the answer is correct
-        feedback:
-          "Your answer demonstrates a good understanding of 'let' and 'const'. However, you could improve by mentioning that 'const' doesn't make the value immutable for objects and arrays, only the binding is immutable.",
-      });
-    }, 1500);
-  });
-};
+import apiClient from '@/lib/axios';
 
 export default function PracticePage() {
   const [question, setQuestion] = useState<{
@@ -55,6 +30,7 @@ export default function PracticePage() {
   const [feedback, setFeedback] = useState<{
     correct: boolean;
     feedback: string;
+    similarity: number;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,41 +38,42 @@ export default function PracticePage() {
     loadQuestion();
   }, []);
 
+  /** Load Question */
   const loadQuestion = async () => {
     setLoading(true);
     setError(null);
+    setAnswer('');
+    setFeedback(null);
     try {
-      const questionData = (await fetchQuestion()) as {
-        id: number;
-        question: string;
-        difficulty: string;
-      };
-      setQuestion(questionData);
+      const response = await apiClient.get('/get_question');
+      setQuestion({ ...response.data, id: response.data.question_number });
     } catch (err) {
-      setError('Failed to load question. Please try again.');
+      setError(`Failed to load question due to ${err}`);
     } finally {
       setLoading(false);
     }
   };
 
+  /** Submit Answer */
   const handleSubmit = async () => {
     setSubmitting(true);
     setError(null);
     try {
-      const result = (await submitAnswer(answer)) as {
-        correct: boolean;
-        feedback: string;
-      };
-      setFeedback(result);
+      const response = await apiClient.post('/get_feedback', {
+        question_number: question?.id,
+        user_answer: answer,
+        question: question?.question,
+      });
+      setFeedback(response.data);
     } catch (err) {
-      setError('Failed to submit answer. Please try again.');
+      setError(`Failed to submit answer due to ${err}`);
     } finally {
       setSubmitting(false);
     }
   };
 
+  /** Quit to Dashboard */
   const handleQuit = () => {
-    // In a real application, you might want to save progress or update stats here
     window.location.href = '/dashboard';
   };
 
@@ -174,7 +151,7 @@ export default function PracticePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p>{feedback.feedback}</p>
+              <ReactMarkdown>{feedback.feedback}</ReactMarkdown>
             </CardContent>
             <CardFooter>
               <Button onClick={loadQuestion}>Next Question</Button>

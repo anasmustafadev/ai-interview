@@ -1,6 +1,4 @@
-'use client';
-
-import { useState } from 'react';
+import { signup } from '../actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,17 +21,6 @@ import { Brain } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [level, setLevel] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically handle the signup logic
-    console.log('Signup attempt with:', { email, password, level });
-  };
-
   return (
     <div className='flex flex-col min-h-screen'>
       <header className='px-4 lg:px-6 h-14 flex items-center'>
@@ -50,17 +37,16 @@ export default function SignupPage() {
               Create your account to start practicing
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit}>
+          <form action={signup}>
+            <CardContent>
               <div className='grid w-full items-center gap-4'>
                 <div className='flex flex-col space-y-1.5'>
                   <Label htmlFor='email'>Email</Label>
                   <Input
                     id='email'
+                    name='email'
                     type='email'
                     placeholder='Your email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -68,25 +54,23 @@ export default function SignupPage() {
                   <Label htmlFor='password'>Password</Label>
                   <Input
                     id='password'
+                    name='password'
                     type='password'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <div className='flex flex-col space-y-1.5'>
-                  <Label htmlFor='confirm-password'>Confirm Password</Label>
+                  <Label htmlFor='confirmPassword'>Confirm Password</Label>
                   <Input
-                    id='confirm-password'
+                    id='confirmPassword'
+                    name='confirmPassword'
                     type='password'
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
                 </div>
                 <div className='flex flex-col space-y-1.5'>
                   <Label htmlFor='level'>Experience Level</Label>
-                  <Select onValueChange={setLevel} required>
+                  <Select name='level' required>
                     <SelectTrigger>
                       <SelectValue placeholder='Select your level' />
                     </SelectTrigger>
@@ -99,19 +83,19 @@ export default function SignupPage() {
                   </Select>
                 </div>
               </div>
-            </form>
-          </CardContent>
-          <CardFooter className='flex flex-col'>
-            <Button className='w-full' onClick={handleSubmit}>
-              Sign Up
-            </Button>
-            <p className='mt-2 text-sm text-center'>
-              Already have an account?{' '}
-              <Link href='/login' className='text-blue-500 hover:underline'>
-                Log in
-              </Link>
-            </p>
-          </CardFooter>
+            </CardContent>
+            <CardFooter className='flex flex-col'>
+              <Button className='w-full' type='submit'>
+                Sign Up
+              </Button>
+              <p className='mt-2 text-sm text-center'>
+                Already have an account?{' '}
+                <Link href='/login' className='text-blue-500 hover:underline'>
+                  Log in
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
         </Card>
       </main>
     </div>

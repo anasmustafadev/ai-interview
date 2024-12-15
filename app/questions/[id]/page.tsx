@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Brain, CheckCircle, XCircle } from 'lucide-react';
+import { Brain, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 // Mock data for a single question
